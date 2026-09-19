@@ -6,6 +6,9 @@
 <title>Odaya katıl — Multiplayer Battle</title>
 <meta property="og:title" content="Multiplayer Battle — odama gel!">
 <meta property="og:description" content="Bağlantıya dokun, oyun açılsın ve odaya katıl.">
+<!-- Safari'nin üstteki resmi bandı: oyun kuruluysa "Aç", değilse "Görüntüle" (App Store).
+     app-argument kodu da taşıyor: banttan açılınca oyun doğrudan odaya giriyor. -->
+<meta name="apple-itunes-app" id="banner" content="app-id=6813060155">
 <style>
   :root { color-scheme: light dark; }
   body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 16px; line-height: 1.5; text-align: center; background: #10161c; color: #f2f2f2; }
@@ -16,11 +19,12 @@
   .secondary { background: #2b3845; color: #f2f2f2; }
   .hint { color: #9fb0bf; font-size: 14px; }
   .hidden { display: none; }
+  #install-box { margin-top: 22px; padding-top: 18px; border-top: 1px solid #2b3845; }
 </style>
 </head>
 <body>
 <h1>Multiplayer Battle — odaya katıl</h1>
-<p class="hint">Arkadaşın seni odasına çağırıyor.</p>
+<p class="hint">Arkadaşın seni odasına çağırıyor. Kodun:</p>
 
 <div id="code" class="code">——</div>
 
@@ -28,12 +32,16 @@
 <button id="copy" class="btn secondary" type="button">Kodu kopyala</button>
 <p id="copied" class="hint hidden">Kopyalandı! Oyunda <b>Çok oyunculu → Odaya katıl</b>'a yapıştır.</p>
 
-<p class="hint">Oyun açılmadıysa: oyunu aç, <b>Çok oyunculu → Odaya katıl</b>'a kodu yaz.</p>
-<a id="get" class="btn secondary hidden" href="#">Oyunu yükle (TestFlight)</a>
+<div id="install-box" class="hidden">
+  <p class="hint"><b>Oyun açılmadı mı?</b> Oyun telefonunda yoksa önce yükle; kurulduktan sonra
+  bu bağlantıya tekrar dokun ya da oyunu açıp <b>Çok oyunculu → Odaya katıl</b>'a yukarıdaki kodu yaz.</p>
+  <a id="get" class="btn primary" href="#">Oyunu yükle</a>
+</div>
 
 <script>
   // Oyunun iOS'ta kaydettiği adres: multiplayerbattle://join/KOD (Editor/UrlScheme).
-  // Oyunu yükleme bağlantısı (TestFlight herkese açık bağlantısı) beta onayından sonra buraya.
+  // Mağazaya çıkınca burayı App Store adresiyle değiştir:
+  // var INSTALL_URL = "https://apps.apple.com/app/id6813060155";
   var INSTALL_URL = "https://testflight.apple.com/join/12JEbf4V";
 
   var raw = new URLSearchParams(location.search).get("c") || "";
@@ -42,23 +50,50 @@
 
   document.getElementById("code").textContent = code || "——";
   document.getElementById("open").href = deepLink;
+  document.getElementById("get").href = INSTALL_URL;
 
-  if (INSTALL_URL) {
-    var get = document.getElementById("get");
-    get.href = INSTALL_URL;
-    get.classList.remove("hidden");
+  // Safari'nin bandı da kodu taşısın: banttan "Aç" denince oyun odaya giriyor.
+  if (code) {
+    document.getElementById("banner").setAttribute("content", "app-id=6813060155, app-argument=" + deepLink);
+  }
+
+  function copyCode() {
+    if (navigator.clipboard && code) {
+      navigator.clipboard.writeText(code).catch(function () {});
+    }
   }
 
   document.getElementById("copy").addEventListener("click", function () {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(code);
-    }
+    copyCode();
     document.getElementById("copied").classList.remove("hidden");
   });
 
-  // Sayfa açılınca oyunu bir kez açmayı dene.
+  var installBox = document.getElementById("install-box");
+
+  function showInstall() {
+    installBox.classList.remove("hidden");
+  }
+
   if (code) {
+    // Oyunu bir kez açmayı dene. Oyun yoksa sayfa görünür kalır: kısa bir süre
+    // sonra "Oyunu yükle" bölümü kendiliğinden açılıyor. Oyun açıldıysa sayfa
+    // arka plana düşer (visibilitychange) ve yükleme bölümü hiç çıkmaz.
+    var opened = false;
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        opened = true;
+      }
+    });
+
     setTimeout(function () { location.href = deepLink; }, 300);
+    setTimeout(function () {
+      if (!opened && !document.hidden) {
+        copyCode();
+        showInstall();
+      }
+    }, 1500);
+  } else {
+    showInstall();
   }
 </script>
 </body>
