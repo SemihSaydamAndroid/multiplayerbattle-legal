@@ -35,14 +35,14 @@
 <div id="install-box" class="hidden">
   <p class="hint"><b>Oyun açılmadı mı?</b> Oyun telefonunda yoksa önce yükle; kurulduktan sonra
   bu bağlantıya tekrar dokun ya da oyunu açıp <b>Çok oyunculu → Odaya katıl</b>'a yukarıdaki kodu yaz.</p>
-  <a id="get" class="btn primary" href="#">Oyunu yükle</a>
+  <a id="get" class="btn primary" href="#">App Store'dan yükle</a>
+  <p class="hint">Mağazada henüz görünmüyorsa: <a id="beta" href="#">beta sürümü (TestFlight)</a></p>
 </div>
 
 <script>
   // Oyunun iOS'ta kaydettiği adres: multiplayerbattle://join/KOD (Editor/UrlScheme).
-  // Mağazaya çıkınca burayı App Store adresiyle değiştir:
-  // var INSTALL_URL = "https://apps.apple.com/app/id6813060155";
-  var INSTALL_URL = "https://testflight.apple.com/join/12JEbf4V";
+  var INSTALL_URL = "https://apps.apple.com/app/id6813060155";
+  var BETA_URL = "https://testflight.apple.com/join/12JEbf4V";
 
   var raw = new URLSearchParams(location.search).get("c") || "";
   var code = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
@@ -51,6 +51,7 @@
   document.getElementById("code").textContent = code || "——";
   document.getElementById("open").href = deepLink;
   document.getElementById("get").href = INSTALL_URL;
+  document.getElementById("beta").href = BETA_URL;
 
   // Safari'nin bandı da kodu taşısın: banttan "Aç" denince oyun odaya giriyor.
   if (code) {
